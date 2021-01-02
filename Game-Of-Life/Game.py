@@ -1,52 +1,32 @@
-import pygame
+from Engine import *
 
 from Game_of_life import *
 
-class Game(object):
+class Game(Engine):
 
-    WIDTH  = 800
-    HEIGHT = 600
-
-    CELLS_WIDTH  = 80
-    CELLS_HEIGHT = 60
-
-    SIZE_OF_RECTANGLES = 10
+    """ Class that visualizes Conway's Game of Life """
 
     BLACK = (255, 255, 255)
     WHITE = (0, 0, 0)
-
-    LOGO_PATH       = "assets/images/logo32x32.png"
-    WINDOW_TITLE    = "Game of Life"
     
-    def __init__(self):
+    def __init__(self, width, height, size_of_rectangles):
 
-        pygame.init()
+        window_data = WindowData("assets/images/logo32x32.png", "Game of Life")
 
-        self._set_window(self.LOGO_PATH, self.WINDOW_TITLE)
+        super().__init__(width, height, window_data)
 
-        self._screen = self._set_display(self.WIDTH, self.HEIGHT)
+        self._init_constants(size_of_rectangles)
 
-        self._running = True
-
-        self._clock = pygame.time.Clock()
-        self._FPS   = 3
+        # More than 3 frames per second felt too fast
+        self._FPS = 3
         
-        self._rect_list = self._init_rectangle_list(self.WIDTH, self.HEIGHT, self.SIZE_OF_RECTANGLES)
+        self._rect_list = self._init_rectangle_list(self._width, self._height, self.SIZE_OF_RECTANGLES)
 
         self._game_of_life = Game_of_life(self.CELLS_HEIGHT, self.CELLS_WIDTH)
 
-    def _set_window(self, logo_path, window_title):
-
-        logo = pygame.image.load(logo_path)
-
-        pygame.display.set_icon(logo)
-        pygame.display.set_caption(window_title)
-
-    def _set_display(self, width, height):
-
-        return pygame.display.set_mode((width, height))
-
     def mainLoop(self):
+    
+        """ Main loop for drawing the dead alive cells in each frame """
 
         while self._running:
 
@@ -62,6 +42,9 @@ class Game(object):
 
     def _Game_of_life_logic(self):
 
+        """ The logic is: We map the 0,1 values of the 2x2 board to rectangles on the screen.
+            Black (1) for alive cells 0 for dead """
+
         for i in range(self.CELLS_HEIGHT):
             for j in range(self.CELLS_WIDTH):
 
@@ -74,38 +57,44 @@ class Game(object):
                 else:
                         
                     pygame.draw.rect(self._screen, self.BLACK, current_rectangle)
-                        
+
+        # after drawing the screen compute the next timestep to draw
         self._game_of_life.next_time_step()
 
-    def _init_rectangle_list(self, sum_x, sum_y, size):
-
+    def _init_rectangle_list(self, width, height, size):
+        
+        """ Method to map a 2x2 binary list into rectangles. Fills a 2x2 list with rectangles """
+        
         rect_list = []
+
+        # rows in screen are the y values of a pixel
         y = 0
-        for i in range(sum_y):
+        for i in range(height):
             
             rect_row = []
+
+            # for every x column in the screen
             x = 0
-            for j in range(sum_x):
+            for j in range(width):
                 
                 r = pygame.Rect(x, y, size, size)
                 
                 rect_row.append(r)
                 
+                # offset the next value size rectangle
                 x = x + size
                 
             rect_list.append(rect_row)
+
             y = y + size
             
         return rect_list
-    
-    def _handleEvents(self):
-
-        for event in pygame.event.get():
-
-            if event.type == pygame.QUIT:       self._running = False
-            if event.type == pygame.KEYDOWN:    self._keyboardControls(event)
                   
     def _keyboardControls(self, event):
+
+        """ Controls for the game are: 
+            r: To restart the simulation
+            q: To quit """  
 
         if event.key == pygame.K_r:
             
@@ -119,8 +108,27 @@ class Game(object):
             
             return
         
+    def _init_constants(self, size_of_rectangles):
+        
+        """ Class to compute the constants we use in the program. Similar to a C++ initializer list """
+        
+        # Computations to fit the whole resolution with rectangles. Works best for remainder zero 
+        self.CELLS_WIDTH  = self._width     // size_of_rectangles
+        self.CELLS_HEIGHT = self._height    // size_of_rectangles
+
+        # Size of rectangles must feel like a constant
+        self.SIZE_OF_RECTANGLES = size_of_rectangles
+        
 if __name__== "__main__":
 
-    game = Game()
+    """ Driver main """
+    
+    # In testing we liked a lot those values
+    WIDTH  = 800
+    HEIGHT = 600
+
+    SIZE_OF_RECTANGLES = 10
+
+    game = Game(WIDTH, HEIGHT, SIZE_OF_RECTANGLES)
 
     game.mainLoop()

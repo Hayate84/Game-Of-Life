@@ -2,7 +2,7 @@ from random import randint
 
 class Game_of_life(object):
 
-    """Class that implements the rules of Conway's Game of Life"""
+    """ Class that implements the rules of Conway's Game of Life """
 
     def __init__(self, rows, cols):
 
@@ -23,7 +23,7 @@ class Game_of_life(object):
 
     def _get_neighbors(self, i, j):
         
-        """Count the neighbors of a cell in i, j position in the 2x2 board/world"""
+        """ Count the neighbors of a cell in i, j position in the 2x2 board/world """
 
         board = self._board
 
@@ -47,11 +47,13 @@ class Game_of_life(object):
 
     def get_board(self):
 
+        """ Get method to get the 2x2 grid """
+
         return self._board
 
     def next_time_step(self):
 
-        """Update all the cells based on the rules"""
+        """ Update all the cells based on the rules """
 
         new_board = []
         old_board = self._board
@@ -74,23 +76,21 @@ class Game_of_life(object):
                 
     def _rules(self, cell, neighbors):
     
-        """Method to get the rules of the game based on if a cell is alive or dead"""
+        """ Method to get the rules of the game based on if a cell is alive or dead """
 
-        if cell == self.ALIVE:
-            return self._alive_rules(neighbors)
-        else:
-            return self._dead_rules(neighbors)
+        if cell == self.ALIVE: return self._alive_rules(neighbors)
+        else:                  return self._dead_rules(neighbors)
               
     def _alive_rules(self, neighbors):
 	
-        """Rules in case a cell is alive"""
+        """ Rules in case a cell is alive """
 
         if neighbors == 3 or neighbors == 2:    return self.ALIVE
         else:                                   return self.DEAD
 
     def _dead_rules(self, neighbors):
 
-        """Rules in case a cell is dead"""
+        """ Rules in case a cell is dead """
 
         if neighbors == 3:  return self.ALIVE
         else:               return self.DEAD
